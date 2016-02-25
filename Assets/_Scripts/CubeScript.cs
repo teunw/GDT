@@ -20,10 +20,12 @@ public class CubeScript : MonoBehaviour, Buyable {
     {
         get
         {
-            List<BuyRequirement> requirements = new List<BuyRequirement>();
-            requirements.Add(new BuyRequirement(typeof(WoodResource), 1f));
-            requirements.Add(new BuyRequirement(typeof(FoodResource), 2f));
-            requirements.Add(new BuyRequirement(typeof(CoinResource), 3f));
+            List<BuyRequirement> requirements = new List<BuyRequirement>()
+            {
+                new BuyRequirement(typeof(WoodResource), 1f),
+                new BuyRequirement(typeof(FoodResource), 2f),
+                new BuyRequirement(typeof(CoinResource), 3f)
+            };
             return requirements;
         }
     }

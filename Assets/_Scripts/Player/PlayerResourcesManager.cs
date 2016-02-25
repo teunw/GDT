@@ -9,30 +9,61 @@ namespace Assets._Scripts
 {
     public class PlayerResourcesManager
     {
-        public const float ResourceGainWhileInactive = .001f;
+        public const float ResourceGain = 0.001f;
 
-        public bool IsTurn;
-
-        public ResourceManager ResourceManager
-        {
-            get;
-            private set;
-        }
-
-        public List<BasicResource> Resources
-        {
-            get { return ResourceManager.Resources; }
-        } 
+        public List<BasicResource> Resources { get; private set; }
 
         public PlayerResourcesManager()
         {
-            ResourceManager = new ResourceManager();
+            Resources = new List<BasicResource>();
+            Resources.Add(new WoodResource());
+            Resources.Add(new FoodResource());
+            Resources.Add(new CoinResource());
         }
 
-        public void Update()
+        public void AddAmountToAll(float amount)
         {
-            if (!IsTurn)
-                ResourceManager.AddAmountToAll(ResourceGainWhileInactive * Time.deltaTime);
+            Resources.ForEach(o => o.Amount += amount);
+        }
+
+        public void EndTurn()
+        {
+            Resources.ForEach(o => o.OnEndTurn());
+        }
+
+        public void Update(bool isTurn)
+        {
+            if (!isTurn)
+                Resources.ForEach(o => o.Amount += ResourceGain * Time.deltaTime);
+        }
+
+        public bool BuyUnit(Buyable buyable)
+        {
+            // Check if buy is possible
+            foreach (BuyRequirement b in buyable.Requirements)
+            {
+                foreach (BasicResource r in Resources)
+                {
+                    if (b.RequiredResource == r.GetType())
+                    {
+                        if (b.AmountRequired > r.Amount)
+                            return false;
+                    }
+                }
+            }
+            // Apply buy
+            foreach (BuyRequirement buyRequirement in buyable.Requirements)
+            {
+                foreach (BasicResource resource in Resources)
+                {
+                    if (!(buyRequirement.RequiredResource == resource.GetType() &&
+                          buyRequirement.AmountRequired < resource.Amount))
+                    {
+                        resource.Amount -= buyRequirement.AmountRequired;
+                    }
+                }
+            }
+            return true;
         }
 
 

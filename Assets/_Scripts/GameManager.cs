@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Runtime.Remoting.Messaging;
 using Assets._Scripts;
 using Assets._Scripts.GameResources;
 using UnityEditor;
@@ -17,9 +18,7 @@ public class GameManager : MonoBehaviour {
 	    return instance;
 	}
 
-    public List<PlayerComponent> Players
-    {
-        get; private set; }
+    public List<PlayerComponent> Players { get; private set; }
 
     private int playerTurn;
 
@@ -50,14 +49,13 @@ public class GameManager : MonoBehaviour {
         
     }
 
-    void Start() {
-        Players.Add(new PlayerComponent());
-        Players.Add(new PlayerComponent());
+    void OnEnable() {
         endButton.onClick.AddListener(() =>
         {
             NextPlayer();
             refreshUI();
         });
+        Players = new List<PlayerComponent>();
     }
 
     void Update()
@@ -79,7 +77,8 @@ public class GameManager : MonoBehaviour {
 
     int NextPlayer()
     {
-        ++playerTurn;
+        Players[playerTurn].IsTurn = false;
+        Players[++playerTurn].IsTurn = true;
         if (playerTurn > Players.Count)
         {
             playerTurn = 0;
