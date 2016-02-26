@@ -2,19 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Assets._Scripts.GameResources;
 using Assets._Scripts.Player;
+using Assets._Scripts.Units;
 using UnityEngine;
 
-namespace Assets._Scripts
+namespace Assets._Scripts.Player
 {
     public class PlayerComponent : MonoBehaviour
     {
         private Camera _camera;
         private Transform _transform;
         private PlayerControls _playerControls;
+        private bool IsTurn;
+        private Dictionary<Unit, GameObject> unitGameObjects;
 
-        public bool IsTurn;
+        public bool startOnTurn;
         public GameObject cubeUnit;
+        public Color unitColor;
 
         public PlayerResourcesManager ResourcesManager { get; private set; }
 
@@ -31,31 +36,57 @@ namespace Assets._Scripts
             _transform = GetComponent<Transform>();
 
             GameManager.getInstance().Players.Add(this);
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
         }
 
         void Update()
         {
             ResourcesManager.Update(IsTurn);
 
-            _transform.Translate(Vector3.right*_playerControls.getHorizontal());
-            _transform.Translate(Vector3.forward*_playerControls.getVertical());
-
-            _playerControls.UpdateCamera(_transform);
+//            _transform.Translate(Vector3.right*_playerControls.getHorizontal());
+//            _transform.Translate(Vector3.forward*_playerControls.getVertical());
+//
+//            _playerControls.UpdateCamera(_transform);
         }
 
-        public void BuyUnit()
+        public void setTurn(bool turn)
         {
-            CubeScript cs = cubeUnit.GetComponent<CubeScript>();
-            if (ResourcesManager.BuyUnit(cs))
+            IsTurn = turn;
+            gameObject.GetComponent<Camera>().enabled = turn;
+        } 
+
+        private bool BuyUnit(Buyable unit, GameObject obj)
+        {
+            if (ResourcesManager.BuyUnit(unit))
             {
-                Instantiate(cubeUnit);
+                GameObject clone = Instantiate(obj);
+                clone.GetComponent<Renderer>().material.color = unitColor;
+                GameManager.getInstance().AddUnitToUnitContainer(clone);
+                return true;
             }
             else
             {
-                Debug.Log("Nope");
+                return false;
             }
+        }
+
+        public bool BuyUnit(GameObject obj)
+        {
+            SphereUnit su = obj.GetComponent<SphereUnit>();
+            CubeUnit cu = obj.GetComponent<CubeUnit>();
+            Unit u;
+            if (su != null)
+            {
+                u = su;
+            }
+            else if (cu != null)
+            {
+                u = cu;
+            }
+            else
+            {
+                throw new ArgumentException("Could not find unit component");
+            }
+            return BuyUnit(u, obj);
         }
     }
 }
