@@ -20,7 +20,7 @@ public class GameManager : MonoBehaviour {
 	    return instance;
 	}
 
-    public List<PlayerComponent> Players { get; private set; }
+    private List<PlayerComponent> Players;
 
     private int playerTurn; 
 
@@ -59,27 +59,24 @@ public class GameManager : MonoBehaviour {
         endButton.onClick.AddListener(() =>
         {
             NextPlayer();
-            refreshUI();
+            RefreshUI();
         });
         buyCubeButton.onClick.AddListener(() =>
         {
             getPlayerOnTurn.BuyUnit(cubeUnit);
-            refreshUI();
+            NextPlayer();
+            RefreshUI();
         });
         buySphereButton.onClick.AddListener(() =>
         {
             getPlayerOnTurn.BuyUnit(sphereUnit);
-            refreshUI();
+            NextPlayer();
+            RefreshUI();
         });
         Players = new List<PlayerComponent>();
     }
 
-    void Update()
-    {
-        
-    }
-
-    void refreshUI()
+    public void RefreshUI()
     {
         foodText.text = getPlayerOnTurn.ResourcesManager.Resources.Find(o => o.GetType() == typeof(FoodResource)).ToString();
         woodText.text = getPlayerOnTurn.ResourcesManager.Resources.Find(o => o.GetType() == typeof(WoodResource)).ToString();
@@ -102,6 +99,17 @@ public class GameManager : MonoBehaviour {
         }
         Players[playerTurn].setTurn(true);
         return playerTurn;
+    }
+
+    public void AddPlayer(PlayerComponent player)
+    {
+        player.setTurn(Players.Count == 0);
+        Players.Add(player);
+    }
+
+    public PlayerComponent getCurrentPlayer
+    {
+        get { return Players[playerTurn]; }
     }
 
     public void AddUnitToUnitContainer(GameObject gameObject)

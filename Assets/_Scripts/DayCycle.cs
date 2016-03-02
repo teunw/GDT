@@ -20,7 +20,6 @@ namespace Assets._Scripts
 
         void Update()
         {
-            Quaternion q = _transform.rotation;
             _transform.Rotate(Vector3.left * speed);
         }
 

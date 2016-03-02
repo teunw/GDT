@@ -11,7 +11,7 @@ namespace Assets._Scripts.Player
 {
     public class PlayerResourcesManager
     {
-        public const float ResourceGain = 999f;
+        public const float ResourceGain = .50f;
 
         private float ResourceGained;
         public List<BasicResource> Resources { get; private set; }

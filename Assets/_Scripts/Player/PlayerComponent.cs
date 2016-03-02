@@ -12,10 +12,10 @@ namespace Assets._Scripts.Player
     public class PlayerComponent : MonoBehaviour
     {
         private Camera _camera;
-        private Transform _transform;
         private PlayerControls _playerControls;
         private bool IsTurn;
         private Dictionary<Unit, GameObject> unitGameObjects;
+        private Transform _transform;
 
         public bool startOnTurn;
         public GameObject cubeUnit;
@@ -27,25 +27,19 @@ namespace Assets._Scripts.Player
         {
             ResourcesManager = new PlayerResourcesManager();
             _playerControls = new PlayerControls();
+            _transform = GetComponent<Transform>();
 
             _camera = GetComponent<Camera>();
 
-            _playerControls.pitch = _camera.transform.eulerAngles.x;
-            _playerControls.yaw = _camera.transform.eulerAngles.y;
-
-            _transform = GetComponent<Transform>();
-
-            GameManager.getInstance().Players.Add(this);
+            GameManager.getInstance().AddPlayer(this);
         }
 
         void Update()
         {
             ResourcesManager.Update(IsTurn);
 
-//            _transform.Translate(Vector3.right*_playerControls.getHorizontal());
-//            _transform.Translate(Vector3.forward*_playerControls.getVertical());
-//
-//            _playerControls.UpdateCamera(_transform);
+            _transform.Translate(Vector3.right*_playerControls.getHorizontal());
+            _transform.Translate(Vector3.forward*_playerControls.getVertical());
         }
 
         public void setTurn(bool turn)
