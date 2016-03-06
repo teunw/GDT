@@ -8,9 +8,10 @@ namespace Assets._Scripts.Player
 {
     class PlayerControls
     {
+        public const float CameraSpeed = 2f;
+        public const float ScrollSpeed = 500f;
         public float yaw, pitch;
 
-        public const float CameraSpeed = 2f;
 
         public float getHorizontal()
         {
@@ -39,9 +40,25 @@ namespace Assets._Scripts.Player
 
         public void UpdateCamera(Transform transform)
         {
-            yaw += CameraSpeed*getHorizontalMouse();
-            pitch -= CameraSpeed*getVerticalMouse();
-            transform.eulerAngles = new Vector3(pitch, yaw, 0f);
+            if (Input.GetMouseButton(2))
+            {
+                yaw += CameraSpeed*getHorizontalMouse();
+                pitch -= CameraSpeed*getVerticalMouse();
+                transform.eulerAngles = new Vector3(pitch, yaw, 0f);
+                Cursor.visible = false;
+                Cursor.lockState = CursorLockMode.Locked; ;
+            }
+            else
+            {
+                Cursor.visible = true;
+                Cursor.lockState = CursorLockMode.None;
+            }
+        }
+
+        public void UpdateZoom(Transform transform)
+        {
+            float scroll = Input.GetAxis("Mouse ScrollWheel");
+            transform.Translate(Vector3.forward * scroll * Time.deltaTime * ScrollSpeed);
         }
     }
 }

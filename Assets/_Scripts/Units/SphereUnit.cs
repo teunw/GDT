@@ -7,9 +7,9 @@ using UnityEngine;
 
 namespace Assets._Scripts.Units
 {
-    public class SphereUnit : MonoBehaviour, Unit
+    public class SphereUnit : Unit
     {
-        public List<BuyRequirement> Requirements
+        public override List<BuyRequirement> Requirements
         {
             get
             {
@@ -22,7 +22,7 @@ namespace Assets._Scripts.Units
 
         }
 
-        public string Name
+        public override string Name
         {
             get { return "Sphere"; }
         }

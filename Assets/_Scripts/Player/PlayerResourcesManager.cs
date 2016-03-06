@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Assets._Scripts.GameResources;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Assertions.Comparers;
 
@@ -37,19 +36,13 @@ namespace Assets._Scripts.Player
         public void Update(bool isTurn)
         {
             if (!isTurn)
-            {
                 ResourceGained += (ResourceGain*Time.deltaTime);
-            }
             else
-            {
                 ResourceGained = 0f;
-            }
 
-            if (ResourceGained >= 1)
-            {
-                Resources.ForEach(o => o.Amount += 1);
-                ResourceGained = 0;
-            }
+            if (!(ResourceGained >= 1)) return;
+            Resources.ForEach(o => o.Amount += 1);
+            ResourceGained = 0;
         }
 
         public bool BuyUnit(Buyable buyable)

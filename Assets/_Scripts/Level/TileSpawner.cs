@@ -1,27 +1,51 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using System.Collections;
+using System.Runtime.InteropServices;
+using Assets._Scripts.Level;
 
 public class TileSpawner : MonoBehaviour
 {
 
-    public const int X = 12;
-    public const int Z = 12;
+    public int X = 16;
+    public int Z = 16;
 
     public GameObject tile;
 
     void Start () {
+        GameManager.getInstance().RegisterTileParent(gameObject);
         Transform transform = GetComponent<Transform>();
         Vector3 pos = transform.position;
 
-        for (float x = pos.x; x < pos.x + X; x++)
+        int halfX = X/2;
+        int halfZ = Z/2;
+        for (float x = pos.x - halfX; x < pos.x + X - halfX; x++)
         {
-            for (float z = pos.y; z < pos.z + Z; z++)
+            float max = pos.z + Z - halfZ;
+            float min = pos.z - halfZ;
+            for (float z = min; z < max; z++)
             {
                 GameObject clone = Instantiate(tile, new Vector3(x, pos.y, z), transform.rotation) as GameObject;
                 if (clone == null) continue;
                 clone.GetComponent<Transform>().parent = transform;
+
+                Tile tileComponent = clone.GetComponent<Tile>();
+                if (IsHalfWay(z, min, max))
+                {
+                    tileComponent.PlayerComponent = 0;
+                }
+                else
+                {
+                    tileComponent.PlayerComponent = 1;
+                }
             }
         }
+    }
+
+    private bool IsHalfWay(float z, float min, float max)
+    {
+        float avg = (min + max) / 2;
+        return z >= avg;
     }
 	
 	void FixedUpdate ()

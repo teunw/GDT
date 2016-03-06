@@ -8,7 +8,7 @@ public class CoinClickable : MonoBehaviour {
     {
 
         GameManager.getInstance()
-            .getCurrentPlayer.ResourcesManager.Resources.Find(o => o.GetType() == typeof (CoinResource))
+            .GetCurrentPlayer.ResourcesManager.Resources.Find(o => o.GetType() == typeof (CoinResource))
             .Amount += 1;
         GameManager.getInstance().RefreshUI();
         Destroy(gameObject);

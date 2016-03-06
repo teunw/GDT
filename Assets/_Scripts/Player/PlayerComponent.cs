@@ -6,20 +6,23 @@ using Assets._Scripts.GameResources;
 using Assets._Scripts.Player;
 using Assets._Scripts.Units;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace Assets._Scripts.Player
 {
     public class PlayerComponent : MonoBehaviour
     {
+        public const float SPEED = 36f;
+
         private Camera _camera;
         private PlayerControls _playerControls;
         private bool IsTurn;
-        private Dictionary<Unit, GameObject> unitGameObjects;
         private Transform _transform;
+        private List<GameObject> ownedUnits; 
 
         public bool startOnTurn;
-        public GameObject cubeUnit;
         public Color unitColor;
+        public GameObject SelectedGameObject;
 
         public PlayerResourcesManager ResourcesManager { get; private set; }
 
@@ -28,6 +31,7 @@ namespace Assets._Scripts.Player
             ResourcesManager = new PlayerResourcesManager();
             _playerControls = new PlayerControls();
             _transform = GetComponent<Transform>();
+            ownedUnits = new List<GameObject>();
 
             _camera = GetComponent<Camera>();
 
@@ -38,23 +42,34 @@ namespace Assets._Scripts.Player
         {
             ResourcesManager.Update(IsTurn);
 
-            _transform.Translate(Vector3.right*_playerControls.getHorizontal());
-            _transform.Translate(Vector3.forward*_playerControls.getVertical());
+            _transform.Translate(Vector3.right*_playerControls.getHorizontal() * Time.deltaTime * SPEED);
+            _transform.Translate(Vector3.forward*_playerControls.getVertical()*Time.deltaTime*SPEED);
+            _playerControls.UpdateCamera(_transform);
+            _playerControls.UpdateZoom(_transform);
         }
 
-        public void setTurn(bool turn)
+        public void SetTurn(bool turn)
         {
             IsTurn = turn;
             gameObject.GetComponent<Camera>().enabled = turn;
         } 
 
-        private bool BuyUnit(Buyable unit, GameObject obj)
+        private bool BuyUnit(Buyable unit, GameObject obj, Vector3 pos)
         {
             if (ResourcesManager.BuyUnit(unit))
             {
                 GameObject clone = Instantiate(obj);
                 clone.GetComponent<Renderer>().material.color = unitColor;
+               
+
+                if (pos != null)
+                    clone.GetComponent<Transform>().position = pos;
+
                 GameManager.getInstance().AddUnitToUnitContainer(clone);
+                ownedUnits.Add(clone);
+                GameManager.getInstance().RefreshUI();
+                GameManager.getInstance().AddUnit(clone);
+                
                 return true;
             }
             else
@@ -63,7 +78,7 @@ namespace Assets._Scripts.Player
             }
         }
 
-        public bool BuyUnit(GameObject obj)
+        public bool BuyUnit(GameObject obj, Vector3 pos)
         {
             SphereUnit su = obj.GetComponent<SphereUnit>();
             CubeUnit cu = obj.GetComponent<CubeUnit>();
@@ -80,7 +95,19 @@ namespace Assets._Scripts.Player
             {
                 throw new ArgumentException("Could not find unit component");
             }
-            return BuyUnit(u, obj);
+            u.PlayerComponent = this;
+            return BuyUnit(u, obj, pos);
         }
+
+        public bool BuyUnit()
+        {
+            return BuyUnit(SelectedGameObject, new Vector3());
+        }
+
+        public bool BuyUnit(Vector3 pos)
+        {
+            return BuyUnit(SelectedGameObject, pos);
+        }
+
     }
 }
