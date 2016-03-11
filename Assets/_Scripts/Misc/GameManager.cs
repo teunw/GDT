@@ -126,7 +126,7 @@ public class GameManager : MonoBehaviour {
             playerTurn = 0;
         }
         Players[playerTurn].SetTurn(true);
-        buttonToggle.SetToggleColor(GetCurrentPlayer.unitColor);
+        buttonToggle.SetToggleColor(GetCurrentPlayer.Color);
         return playerTurn;
     }
 

@@ -27,7 +27,7 @@ public class TileSelector : MonoBehaviour
             if (objectHit.gameObject.layer != FLOOR_LAYER) return;
             if (objectHit.GetComponent<Tile>().GetCurrentPlayerComponent == GameManager.getInstance().GetCurrentPlayer) return;
 
-            SelectColor = GameManager.getInstance().GetCurrentPlayer.unitColor;
+            SelectColor = GameManager.getInstance().GetCurrentPlayer.Color;
             Color originalColor = objectHit.GetComponent<Renderer>().material.color;
             objectHit.GetComponent<Renderer>().material.color = SelectColor;
        

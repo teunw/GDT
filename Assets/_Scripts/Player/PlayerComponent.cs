@@ -21,8 +21,9 @@ namespace Assets._Scripts.Player
         private List<GameObject> ownedUnits; 
 
         public bool startOnTurn;
-        public Color unitColor;
+        public Color Color;
         public GameObject SelectedGameObject;
+        public string PlayerName;
 
         public PlayerResourcesManager ResourcesManager { get; private set; }
 
@@ -59,7 +60,7 @@ namespace Assets._Scripts.Player
             if (ResourcesManager.BuyUnit(unit))
             {
                 GameObject clone = Instantiate(obj);
-                clone.GetComponent<Renderer>().material.color = unitColor;
+                clone.GetComponent<Renderer>().material.color = Color;
                
 
                 if (pos != null)
