@@ -5,7 +5,6 @@ namespace Assets._Scripts.GameResources
 {
     public abstract class BasicResource
     {
-
         public abstract string Name { get; }
 
         public float Amount { get; set; }
@@ -13,6 +12,11 @@ namespace Assets._Scripts.GameResources
         protected BasicResource()
         {
             Amount = 0;
+        }
+
+        protected BasicResource(int startAmount)
+        {
+            this.Amount = startAmount;
         }
 
         public void OnEndTurn()

@@ -19,12 +19,16 @@ namespace Assets._Scripts.Units
                     new BuyRequirement(typeof (CoinResource), 2f)
                 };
             }
-
         }
 
         public override string Name
         {
             get { return "Sphere"; }
+        }
+
+        public override int MovementEnergy
+        {
+            get { return 5; }
         }
     }
 }

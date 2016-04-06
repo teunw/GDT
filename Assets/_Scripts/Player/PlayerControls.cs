@@ -46,7 +46,8 @@ namespace Assets._Scripts.Player
                 pitch -= CameraSpeed*getVerticalMouse();
                 transform.eulerAngles = new Vector3(pitch, yaw, 0f);
                 Cursor.visible = false;
-                Cursor.lockState = CursorLockMode.Locked; ;
+                Cursor.lockState = CursorLockMode.Locked;
+                ;
             }
             else
             {
@@ -58,7 +59,7 @@ namespace Assets._Scripts.Player
         public void UpdateZoom(Transform transform)
         {
             float scroll = Input.GetAxis("Mouse ScrollWheel");
-            transform.Translate(Vector3.forward * scroll * Time.deltaTime * ScrollSpeed);
+            transform.Translate(Vector3.forward*scroll*Time.deltaTime*ScrollSpeed);
         }
     }
 }

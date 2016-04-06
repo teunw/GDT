@@ -7,14 +7,9 @@ namespace Assets._Scripts.GameResources
 {
     public class BuyRequirement
     {
+        public Type RequiredResource { get; private set; }
 
-        public Type RequiredResource
-        {
-            get; private set; }
-
-        public float AmountRequired
-        {
-            get; private set; }
+        public float AmountRequired { get; private set; }
 
         public BuyRequirement(Type requiredResource, float amountRequired)
         {

@@ -11,19 +11,13 @@ namespace Assets._Scripts.UI
     {
         private Button button1, button2;
 
-        public Button ToggledButton { get; private set; } 
+        public Button ToggledButton { get; private set; }
 
-        public Color OriginColor
-        {
-            get; private set; }
+        public Color OriginColor { get; private set; }
 
-        public Color ToggleColor
-        {
-            get; private set; }
+        public Color ToggleColor { get; private set; }
 
-        public bool Toggled
-        {
-            get; private set; }
+        public bool Toggled { get; private set; }
 
 
         public ButtonToggle(Button button1, Button button2, Color orignalColor, Color toggleColor)

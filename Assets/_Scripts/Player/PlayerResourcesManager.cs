@@ -10,6 +10,7 @@ namespace Assets._Scripts.Player
 {
     public class PlayerResourcesManager
     {
+        public const int StartResources = 2;
         public const float ResourceGain = .50f;
 
         private float ResourceGained;
@@ -18,9 +19,10 @@ namespace Assets._Scripts.Player
         public PlayerResourcesManager()
         {
             Resources = new List<BasicResource>();
-            Resources.Add(new WoodResource());
-            Resources.Add(new FoodResource());
-            Resources.Add(new CoinResource());
+            Resources.Add(new WoodResource(StartResources));
+            Resources.Add(new FoodResource(StartResources));
+            Resources.Add(new CoinResource(StartResources));
+        
         }
 
         public void AddAmountToAll(float amount)
@@ -57,7 +59,7 @@ namespace Assets._Scripts.Player
 
         private void ApplyRequirements(Buyable buyable)
         {
-            foreach(BuyRequirement req in buyable.Requirements)
+            foreach (BuyRequirement req in buyable.Requirements)
             {
                 BasicResource res = Resources.Find(o => o.GetType() == req.RequiredResource);
 

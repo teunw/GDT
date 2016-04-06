@@ -8,7 +8,6 @@ namespace Assets._Scripts
 {
     public class DayCycle : MonoBehaviour
     {
-
         public float speed;
 
         private Transform _transform;
@@ -20,8 +19,7 @@ namespace Assets._Scripts
 
         void Update()
         {
-            _transform.Rotate(Vector3.left * speed);
+            _transform.Rotate(Vector3.left*speed);
         }
-
     }
 }

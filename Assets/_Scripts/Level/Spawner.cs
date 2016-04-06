@@ -5,7 +5,6 @@ namespace Assets._Scripts
 {
     public class Spawner : MonoBehaviour
     {
-
         public Vector3 size;
         public float spawnFrequency;
         public GameObject spawnedObject;
@@ -37,13 +36,20 @@ namespace Assets._Scripts
 
             if (ParentGameObject != null && clone is GameObject)
             {
-                Transform cloneTransform = ((GameObject)clone).GetComponent<Transform>();
+                Transform cloneTransform = ((GameObject) clone).GetComponent<Transform>();
                 cloneTransform.parent = ParentGameObject.transform;
 
                 if (randomRotation)
                     cloneTransform.rotation = Random.rotation;
             }
             spawnTime = 0;
+        }
+
+        void OnDrawGizmosSelected()
+        {
+            Start();
+            Gizmos.color = new Color(255, 255, 255, 0.2f);
+            Gizmos.DrawCube(_transform.position, size);
         }
     }
 }

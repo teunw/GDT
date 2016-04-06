@@ -11,5 +11,9 @@ namespace Assets._Scripts.GameResources
         {
             get { return "Coin"; }
         }
+
+        public CoinResource(int startAmount) : base(startAmount)
+        {
+        }
     }
 }

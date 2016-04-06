@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Assets._Scripts.GameResources;
+using Assets._Scripts.Level;
+using Assets._Scripts.Misc;
 using Assets._Scripts.Player;
 using Assets._Scripts.Units;
 using UnityEngine;
@@ -18,12 +20,16 @@ namespace Assets._Scripts.Player
         private PlayerControls _playerControls;
         private bool IsTurn;
         private Transform _transform;
-        private List<GameObject> ownedUnits; 
+        private List<GameObject> ownedUnits;
 
         public bool startOnTurn;
-        public Color Color;
+        public Color unitColor;
         public GameObject SelectedGameObject;
-        public string PlayerName;
+
+        [HideInInspector]
+        public Unit SelectedUnit;
+        [HideInInspector]
+        public bool HadFirstTurn;
 
         public PlayerResourcesManager ResourcesManager { get; private set; }
 
@@ -43,7 +49,7 @@ namespace Assets._Scripts.Player
         {
             ResourcesManager.Update(IsTurn);
 
-            _transform.Translate(Vector3.right*_playerControls.getHorizontal() * Time.deltaTime * SPEED);
+            _transform.Translate(Vector3.right*_playerControls.getHorizontal()*Time.deltaTime*SPEED);
             _transform.Translate(Vector3.forward*_playerControls.getVertical()*Time.deltaTime*SPEED);
             _playerControls.UpdateCamera(_transform);
             _playerControls.UpdateZoom(_transform);
@@ -53,36 +59,34 @@ namespace Assets._Scripts.Player
         {
             IsTurn = turn;
             gameObject.GetComponent<Camera>().enabled = turn;
-        } 
+        }
 
         private bool BuyUnit(Buyable unit, GameObject obj, Vector3 pos)
         {
             if (ResourcesManager.BuyUnit(unit))
             {
                 GameObject clone = Instantiate(obj);
-                clone.GetComponent<Renderer>().material.color = Color;
-               
+                clone.GetComponent<Renderer>().material.color = unitColor;
+
 
                 if (pos != null)
                     clone.GetComponent<Transform>().position = pos;
 
                 GameManager.getInstance().AddUnitToUnitContainer(clone);
-                ownedUnits.Add(clone);
                 GameManager.getInstance().RefreshUI();
                 GameManager.getInstance().AddUnit(clone);
-                
+                ownedUnits.Add(clone);
+
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
-        public bool BuyUnit(GameObject obj, Vector3 pos)
+        public bool BuyUnit(GameObject obj, Vector3 pos, Tile ownerTile)
         {
             SphereUnit su = obj.GetComponent<SphereUnit>();
             CubeUnit cu = obj.GetComponent<CubeUnit>();
+            ConverterUnit conU = obj.GetComponent<ConverterUnit>();
             Unit u;
             if (su != null)
             {
@@ -92,23 +96,24 @@ namespace Assets._Scripts.Player
             {
                 u = cu;
             }
+            else if (conU != null)
+            {
+                u = conU;
+            }
             else
             {
                 throw new ArgumentException("Could not find unit component");
             }
+            ColorLerpComponent clc = u.gameObject.GetComponent<ColorLerpComponent>();
+            clc.SelectColor = Color.yellow;
             u.PlayerComponent = this;
+            u.Tile = ownerTile;
             return BuyUnit(u, obj, pos);
         }
 
-        public bool BuyUnit()
+        public bool BuyUnit(Vector3 pos, Tile ownerTile)
         {
-            return BuyUnit(SelectedGameObject, new Vector3());
+            return BuyUnit(SelectedGameObject, pos, ownerTile);
         }
-
-        public bool BuyUnit(Vector3 pos)
-        {
-            return BuyUnit(SelectedGameObject, pos);
-        }
-
     }
 }

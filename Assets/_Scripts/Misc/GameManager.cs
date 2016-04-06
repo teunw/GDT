@@ -6,45 +6,58 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Remoting.Messaging;
 using Assets._Scripts;
 using Assets._Scripts.GameResources;
+using Assets._Scripts.Level;
 using Assets._Scripts.Player;
 using Assets._Scripts.UI;
 using Assets._Scripts.Units;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-public class GameManager : MonoBehaviour {
+[RequireComponent(typeof(AudioSource))]
+public class GameManager : MonoBehaviour
+{
+    private static GameManager instance;
 
-	private static GameManager instance;
+    public static GameManager getInstance()
+    {
+        return instance;
+    }
 
-	public static GameManager getInstance()
-	{
-	    return instance;
-	}
+    public const float ERROR_TIME = 2f;
 
-    private List<PlayerComponent> Players;
+
+    private float ErrorTime = 0f;
     private int playerTurn;
-    private GameObject tileParent;
-    private List<Vector2> UnitPositions = new List<Vector2>();
-    private ButtonToggle buttonToggle;
+    private ButtonToggleM buttonToggle;
+    private AudioSource AudioSource;
+    private readonly List<TurnListener> TurnListeners = new List<TurnListener>();
 
-    public Button endButton;
+    public readonly List<PlayerComponent> Players = new List<PlayerComponent>();
+    public readonly List<Unit> Units = new List<Unit>();
+    public readonly List<Tile> Tiles = new List<Tile>();
+
+    public Button EndButton;
     public Button SelectCubeButton;
     public Button SelectSphereButton;
+    public Button SelectConverterButton;
 
-    public Text woodText;
-    public Text foodText;
-    public Text coinText;
+    public Text ErrorText;
+    public Text WoodText;
+    public Text FoodText;
+    public Text CoinText;
 
-    public GameObject cubeUnit;
-    public GameObject sphereUnit;
-    public GameObject unitContainer;
+    public GameObject CubeUnit;
+    public GameObject SphereUnit;
+    public GameObject ConverterUnit;
+    public GameObject UnitContainer;
+
+    public AudioClip ButtonClick;
 
     void Awake()
     {
         //Check if instance already exists
         if (instance == null)
         {
-
             //if not, set instance to this
             instance = this;
         }
@@ -57,28 +70,32 @@ public class GameManager : MonoBehaviour {
 
         //Sets this to not be destroyed when reloading scene
         DontDestroyOnLoad(gameObject);
-        
     }
 
 
-    void OnEnable() {
-        buttonToggle = new ButtonToggle(SelectCubeButton, SelectSphereButton, SelectCubeButton.image.color, Color.blue);
-        endButton.onClick.AddListener(() =>
+    void OnEnable()
+    {
+        List<Button> buttons = new List<Button> {SelectCubeButton, SelectSphereButton, SelectConverterButton};
+        buttonToggle = new ButtonToggleM(buttons, SelectCubeButton.image.color, Color.blue);
+        EndButton.onClick.AddListener(() =>
         {
+            if (!GetCurrentPlayer.HadFirstTurn)
+            {
+                ErrorText.text = "Please make a move before continueing";
+                return;
+            }
             GoToNextPlayer();
             RefreshUI();
+            PlayButtonClick();
         });
-        SelectCubeButton.onClick.AddListener(() =>
-        {
-            GetCurrentPlayer.SelectedGameObject = cubeUnit;
-            RefreshUI();
-        });
+           
         SelectSphereButton.onClick.AddListener(() =>
         {
             if (buttonToggle.ToggledButton != SelectSphereButton)
             {
-                GetCurrentPlayer.SelectedGameObject = sphereUnit;
-                buttonToggle.Toggle();
+                GetCurrentPlayer.SelectedGameObject = SphereUnit;
+                buttonToggle.Toggle(SelectSphereButton);
+                PlayButtonClick();
             }
             RefreshUI();
         });
@@ -86,24 +103,59 @@ public class GameManager : MonoBehaviour {
         {
             if (buttonToggle.ToggledButton != SelectCubeButton)
             {
-                GetCurrentPlayer.SelectedGameObject = cubeUnit;
-                buttonToggle.Toggle();
+                GetCurrentPlayer.SelectedGameObject = CubeUnit;
+                buttonToggle.Toggle(SelectCubeButton);
+                PlayButtonClick();
             }
             RefreshUI();
         });
-        Players = new List<PlayerComponent>();
+        SelectConverterButton.onClick.AddListener(() =>
+        {
+            if (buttonToggle.ToggledButton != SelectConverterButton)
+            {
+                GetCurrentPlayer.SelectedGameObject = ConverterUnit;
+                buttonToggle.Toggle(SelectConverterButton);
+                PlayButtonClick();
+            }
+            RefreshUI();
+        });
+    }
+
+    private void PlayButtonClick()
+    {
+        AudioSource.clip = ButtonClick;
+        AudioSource.Play();
+    }
+
+    void Start()
+    {
+        AudioSource = GetComponent<AudioSource>();
+        RefreshUI();
     }
 
     void Update()
     {
         RefreshUI();
+        if (!string.IsNullOrEmpty(ErrorText.text))
+        {
+            ErrorTime += Time.deltaTime;
+            if (ErrorTime > ERROR_TIME)
+            {
+                ErrorText.text = string.Empty;
+                ErrorTime = 0f;
+            }
+        }
     }
 
     public void RefreshUI()
     {
-        foodText.text = GetCurrentPlayer.ResourcesManager.Resources.Find(o => o.GetType() == typeof(FoodResource)).ToString();
-        woodText.text = GetCurrentPlayer.ResourcesManager.Resources.Find(o => o.GetType() == typeof(WoodResource)).ToString();
-        coinText.text = GetCurrentPlayer.ResourcesManager.Resources.Find(o => o.GetType() == typeof(CoinResource)).ToString();
+        FoodText.text =
+            GetCurrentPlayer.ResourcesManager.Resources.Find(o => o.GetType() == typeof (FoodResource)).ToString();
+        WoodText.text =
+            GetCurrentPlayer.ResourcesManager.Resources.Find(o => o.GetType() == typeof (WoodResource)).ToString();
+        CoinText.text =
+            GetCurrentPlayer.ResourcesManager.Resources.Find(o => o.GetType() == typeof (CoinResource)).ToString();
+        EndButton.enabled = GetCurrentPlayer.HadFirstTurn;
     }
 
     public PlayerComponent GetPlayer(int i)
@@ -118,15 +170,20 @@ public class GameManager : MonoBehaviour {
 
     public int GoToNextPlayer()
     {
+        GetCurrentPlayer.HadFirstTurn = true;
         GetCurrentPlayer.SetTurn(false);
         GetCurrentPlayer.ResourcesManager.EndTurn();
+        int oldPlayer = playerTurn;
         playerTurn += 1;
         if (playerTurn >= Players.Count)
         {
             playerTurn = 0;
         }
+        int newPlayer = playerTurn;
+        TurnListeners.FindAll(o => o != null).ForEach(o => o.OnNextTurn(Players[oldPlayer], Players[newPlayer]));
         Players[playerTurn].SetTurn(true);
-        buttonToggle.SetToggleColor(GetCurrentPlayer.Color);
+        buttonToggle.SetToggleColor(GetCurrentPlayer.unitColor);
+        RefreshUI();
         return playerTurn;
     }
 
@@ -138,52 +195,62 @@ public class GameManager : MonoBehaviour {
 
     public void AddUnitToUnitContainer(GameObject gameObject)
     {
-        gameObject.transform.parent = unitContainer.transform;
+        gameObject.transform.parent = UnitContainer.transform;
     }
 
-    public void RegisterTileParent(GameObject clone)
+    public bool IsTileWalkable(Vector2 pos)
     {
-        tileParent = clone;
+        return Tiles.Find(o => o.GetGridPosition.Equals(pos)).IsWalkable;
     }
 
-    public bool HasUnit(Vector2 pos)
+    public bool IsTileWalkable(Vector3 pos)
     {
-        return UnitPositions.Contains(pos);
+        return IsTileWalkable(new Vector2(pos.x, pos.z));
     }
 
-    public bool HasUnit(Vector3 pos)
+    public bool AddUnit(Vector3 pos, Unit unit)
     {
-        return HasUnit(new Vector2(pos.x, pos.z));
+        return AddUnit(new Vector2(pos.x, pos.z), unit);
     }
 
-    public bool AddUnit(Vector3 pos)
+    public bool AddUnit(Vector2 pos, Unit unit)
     {
-        return AddUnit(new Vector2(pos.x, pos.z));
-    }
+        if (IsTileWalkable(pos)) return false;
 
-    public bool AddUnit(Vector2 pos)
-    {
-        if (HasUnit(pos)) return false;
-
-        UnitPositions.Add(pos);
+        unit.Tile = GetTileAtPosition(pos);
         return true;
     }
 
     public bool AddUnit(GameObject g)
     {
-        return AddUnit(g.GetComponent<Transform>().position);
+        if (g.GetComponent<Unit>() == null)
+        {
+            return false;
+        }
+        return AddUnit(g.GetComponent<Transform>().position, g.GetComponent<Unit>());
     }
 
-    public bool MoveUnit(Vector2 from, Vector2 to)
+    public bool MoveUnit(Vector2 from, Vector2 to, Unit unit)
     {
-        Vector2 pos = UnitPositions.Find(o => o.Equals(from));
+        if (!IsTileWalkable(from)) return false;
+        if (IsTileWalkable(to)) return false;
 
-        if (!HasUnit(from)) return false;
-        if (HasUnit(to)) return false;
-
-        Vector2 oldPos = new Vector2(pos.x, pos.y);
-        UnitPositions.Add(to);
-        UnitPositions.Remove(oldPos);
+        unit.Tile = GetTileAtPosition(to);
         return true;
+    }
+
+    public Tile GetTileAtPosition(Vector2 position)
+    {
+        return Tiles.Find(o => o.GetGridPosition.Equals(position));
+    }
+
+    public void AddTurnListener(TurnListener tl)
+    {
+        TurnListeners.Add(tl);
+    }
+
+    public bool RemoveTurnListener(TurnListener tl)
+    {
+        return TurnListeners.Remove(tl);
     }
 }

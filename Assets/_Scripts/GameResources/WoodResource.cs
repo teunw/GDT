@@ -8,7 +8,10 @@ namespace Assets._Scripts.GameResources
         public override string Name
         {
             get { return "Wood"; }
-        } 
+        }
 
+        public WoodResource(int startAmount) : base(startAmount)
+        {
+        }
     }
 }

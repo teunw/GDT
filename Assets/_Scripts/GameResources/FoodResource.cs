@@ -9,5 +9,13 @@ namespace Assets._Scripts.GameResources
         {
             get { return "Food"; }
         }
+
+        public FoodResource()
+        {
+        }
+
+        public FoodResource(int startAmount) : base(startAmount)
+        {
+        }
     }
 }

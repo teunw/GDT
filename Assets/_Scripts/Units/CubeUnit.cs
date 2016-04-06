@@ -9,15 +9,15 @@ using UnityEngine.Networking.Match;
 
 namespace Assets._Scripts.Units
 {
-    class CubeUnit : Unit
+    public class CubeUnit : Unit
     {
         public const string parentName = "SpawnedResources";
 
         public GameObject CoinUnit;
         public GameObject CoinParent;
 
-        public int MaxSpawnCoins;
-        public float SpawnFrequency = 5f;
+        public int MaxSpawnCoins = 5 ;
+        public float SpawnFrequency = .1f;
 
         private float time;
         private float coinSpawned;
@@ -34,20 +34,27 @@ namespace Assets._Scripts.Units
             }
         }
 
+        public override int MovementEnergy
+        {
+            get { return 2; }
+        }
+
         public override string Name
         {
             get { return "Cube"; }
         }
 
-        void Start()
+        public new void Start()
         {
+            base.Start();
             GameObject parent = GameObject.Find(parentName);
             if (parent != null)
                 CoinParent = parent;
         }
 
-        void Update()
+        public new void Update()
         {
+            base.Update();
             time += Time.deltaTime;
 
             if (time > SpawnFrequency && coinSpawned <= MaxSpawnCoins)
@@ -55,7 +62,8 @@ namespace Assets._Scripts.Units
                 Vector3 pos = GetComponent<Transform>().position;
                 pos.y += 2;
                 GameObject g = Instantiate(CoinUnit, pos, GetComponent<Transform>().rotation) as GameObject;
-                if (g != null && CoinParent != null) g.GetComponent<Transform>().parent = CoinParent.GetComponent<Transform>();
+                if (g != null && CoinParent != null)
+                    g.GetComponent<Transform>().parent = CoinParent.GetComponent<Transform>();
                 time = 0;
                 coinSpawned++;
             }
