@@ -183,6 +183,7 @@ public class GameManager : MonoBehaviour
         TurnListeners.FindAll(o => o != null).ForEach(o => o.OnNextTurn(Players[oldPlayer], Players[newPlayer]));
         Players[playerTurn].SetTurn(true);
         buttonToggle.SetToggleColor(GetCurrentPlayer.unitColor);
+        SelectCubeButton.onClick.Invoke();
         RefreshUI();
         return playerTurn;
     }
@@ -252,5 +253,10 @@ public class GameManager : MonoBehaviour
     public bool RemoveTurnListener(TurnListener tl)
     {
         return TurnListeners.Remove(tl);
+    }
+
+    public void CheckMatchStatus()
+    {
+        
     }
 }

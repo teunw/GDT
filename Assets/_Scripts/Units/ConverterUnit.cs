@@ -82,5 +82,15 @@ namespace Assets._Scripts.Units
                 }
             }
         }
+
+        public override Vector3 Range
+        {
+            get { return new Vector3(2f, 2f, 2f); }
+        }
+
+        public override float PathRange
+        {
+            get { return 10f; }
+        }
     }
 }

@@ -13,9 +13,11 @@ namespace Assets._Scripts.Level
     {
         public float ExtraHeight;
 
-        [HideInInspector] public int PlayerComponent;
+        [HideInInspector]
+        public int PlayerComponent;
 
         private Vector3 _pos;
+        [HideInInspector]
         public Transform Transform;
 
         void Start()
@@ -49,6 +51,17 @@ namespace Assets._Scripts.Level
 
             // Unit is spawned, moving to next player
             GameManager.getInstance().GoToNextPlayer();
+        }
+
+        void OnDrawGizmos()
+        {
+            if (!EditorWalkable)
+            {
+                if (Transform == null) Transform = GetComponent<Transform>();
+                Gizmos.color = Color.red;
+                float m = 1.1f;
+                Gizmos.DrawCube(Transform.position, new Vector3(1*m,1 * m, 1 * m));
+            }
         }
 
         public PlayerComponent GetCurrentPlayerComponent

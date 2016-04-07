@@ -50,7 +50,6 @@ namespace Assets._Scripts.Units
             if (hasWalkedThisTurn)
             {
                 GameManager.getInstance().ErrorText.text = "Unit has already walked this turn";
-                hasWalkedThisTurn = true;
                 return;
             }
 
@@ -61,10 +60,7 @@ namespace Assets._Scripts.Units
 
         public void OnNextTurn(PlayerComponent oldPlayer, PlayerComponent newPlayer)
         {
-            if (newPlayer == this.PlayerComponent)
-            {
-                hasWalkedThisTurn = false;
-            }
+            hasWalkedThisTurn = false;
         }
 
         public virtual void Update()
@@ -133,7 +129,7 @@ namespace Assets._Scripts.Units
 
         public void DeleteMovement()
         {
-            if (pathToFollow != null && pathToFollow.Count >= 1)
+            if (pathToFollow != null && pathToFollow != null && pathToFollow.Count >= 1)
                 this.Tile = pathToFollow[pathToFollow.Count - 1];
             pathToFollow = null;
             currentTile = 0;
@@ -161,8 +157,8 @@ namespace Assets._Scripts.Units
 
         public virtual float Speed { get { return 5f; } }
 
-        public virtual Vector3 Range { get { return new Vector3(5f, 5f, 5f); } }
+        public virtual Vector3 Range { get { return new Vector3(3f, 2f, 3f); } }
 
-        public virtual float PathRange { get { return 8f; } }
+        public virtual float PathRange { get { return 6f; } }
     }
 }

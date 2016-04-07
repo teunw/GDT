@@ -23,6 +23,7 @@ namespace Assets._Scripts.Level.Algorithm
             closedTiles = new List<Tile>(avoid);
 
             Tile currentTile = from;
+            path.Add(from);
             while (true)
             {
                 List<Tile> ts = GetSurroundingTiles(currentTile);
