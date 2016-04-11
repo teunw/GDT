@@ -24,6 +24,7 @@ namespace Assets._Scripts.Misc
         
         private float _timePassed;
         private bool _done;
+        private bool _keepActivated;
         private Renderer _colorRenderer;
 
         void Start()
@@ -36,7 +37,6 @@ namespace Assets._Scripts.Misc
         void Update()
         {
             if (_done) return;
-            _timePassed += Time.deltaTime;
             if (CustomSelectColor != Color.clear)
             {
                 _colorRenderer.material.color = Color.Lerp(CustomSelectColor, OriginalColor, _timePassed/Speed);
@@ -45,6 +45,12 @@ namespace Assets._Scripts.Misc
             {
                 _colorRenderer.material.color = Color.Lerp(SelectColor, OriginalColor, _timePassed/Speed);
             }
+            if (_keepActivated)
+            {
+                _timePassed = 0;
+                return;
+            }
+            _timePassed += Time.deltaTime;
             if (_timePassed > Speed)
             {
                 _done = true;
@@ -52,8 +58,9 @@ namespace Assets._Scripts.Misc
             }
         }
 
-        public void Activate()
+        public void Activate(bool keepActivated = false)
         {
+            _keepActivated = keepActivated;
             _done = false;
             _timePassed = 0;
         }
@@ -63,6 +70,11 @@ namespace Assets._Scripts.Misc
             _done = false;
             _timePassed = 0;
             CustomSelectColor = customColor;
+        }
+
+        public void Deactivate()
+        {
+            _keepActivated = false;
         }
     }
 }

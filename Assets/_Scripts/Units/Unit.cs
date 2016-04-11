@@ -27,6 +27,7 @@ namespace Assets._Scripts.Units
         public Vector3 from;
 
         public Tile Tile;
+        public bool Destroyed;
 
         public virtual void Start()
         {
@@ -46,6 +47,9 @@ namespace Assets._Scripts.Units
         public void OnMouseDown()
         {
             if (PlayerComponent != GameManager.getInstance().GetCurrentPlayer) return;
+            if (PlayerComponent.SelectedUnit != null) PlayerComponent.SelectedUnit.ColorLerpComponent.Deactivate();
+            if (PlayerComponent.SelectedUnit != null && PlayerComponent.SelectedUnit != this) ColorLerpComponent.Deactivate();
+            if (PlayerComponent.SelectedUnit == null) ColorLerpComponent.Deactivate();
 
             if (hasWalkedThisTurn)
             {
@@ -53,7 +57,7 @@ namespace Assets._Scripts.Units
                 return;
             }
 
-            ColorLerpComponent.Activate();
+            ColorLerpComponent.Activate(true);
 
             PlayerComponent.SelectedUnit = this;
         }
@@ -99,6 +103,7 @@ namespace Assets._Scripts.Units
                 if (unit != null)
                 {
                     if (unit.PlayerComponent == this.PlayerComponent) continue;
+                    unit.Destroyed = true;
                     Destroy(unit.gameObject);
                 }
             }
@@ -125,6 +130,7 @@ namespace Assets._Scripts.Units
         private void TurnNotAvailable()
         {
             GameManager.getInstance().ErrorText.text = "Unit doesnt have enough range";
+            GameManager.getInstance().GetCurrentPlayer.SelectedUnit.ColorLerpComponent.Deactivate();
         }
 
         public void DeleteMovement()

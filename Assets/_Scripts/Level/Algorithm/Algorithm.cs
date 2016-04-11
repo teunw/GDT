@@ -49,7 +49,7 @@ namespace Assets._Scripts.Level.Algorithm
 
         public List<Tile> GetSurroundingTiles(Tile tile)
         {
-            if (tile == null) throw new ArgumentNullException("Tile cant be null");
+            if (tile == null) return new List<Tile>();
             List<Tile> tiles = new List<Tile>();
             Vector2[] positions = {
                 new Vector2(tile.GetGridPosition.x + 1, tile.GetGridPosition.y),

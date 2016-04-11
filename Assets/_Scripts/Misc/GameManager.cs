@@ -11,6 +11,7 @@ using Assets._Scripts.Player;
 using Assets._Scripts.UI;
 using Assets._Scripts.Units;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(AudioSource))]
@@ -25,6 +26,9 @@ public class GameManager : MonoBehaviour
 
     public const float ERROR_TIME = 2f;
 
+
+    public PlayerComponent Winner;
+    public PlayerComponent Loser;
 
     private float ErrorTime = 0f;
     private int playerTurn;
@@ -145,6 +149,16 @@ public class GameManager : MonoBehaviour
                 ErrorTime = 0f;
             }
         }
+
+        if (Winner != null && Loser != null)
+        {
+            SceneManager.LoadScene("MainMenu");
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
     }
 
     public void RefreshUI()
@@ -155,7 +169,8 @@ public class GameManager : MonoBehaviour
             GetCurrentPlayer.ResourcesManager.Resources.Find(o => o.GetType() == typeof (WoodResource)).ToString();
         CoinText.text =
             GetCurrentPlayer.ResourcesManager.Resources.Find(o => o.GetType() == typeof (CoinResource)).ToString();
-        EndButton.enabled = GetCurrentPlayer.HadFirstTurn;
+        if (EndButton != null)
+            EndButton.enabled = GetCurrentPlayer.HadFirstTurn;
     }
 
     public PlayerComponent GetPlayer(int i)
@@ -255,8 +270,13 @@ public class GameManager : MonoBehaviour
         return TurnListeners.Remove(tl);
     }
 
-    public void CheckMatchStatus()
+    public void Win(PlayerComponent p)
     {
-        
+        Winner = p;
+    }
+
+    public void Lose(PlayerComponent p)
+    {
+        Loser = p;
     }
 }

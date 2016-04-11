@@ -12,6 +12,11 @@ namespace Assets._Scripts.Player
         public const float ScrollSpeed = 500f;
         public float yaw, pitch;
 
+        public PlayerControls(Transform t)
+        {
+            yaw = t.eulerAngles.y;
+            pitch = t.eulerAngles.x;
+        }
 
         public float getHorizontal()
         {

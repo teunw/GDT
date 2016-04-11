@@ -14,6 +14,9 @@ namespace Assets._Scripts.Player
 {
     public class PlayerComponent : MonoBehaviour
     {
+        public const float WinTime = 2f;
+        public float WinTimer = 0f;
+
         public const float SPEED = 36f;
 
         private Camera _camera;
@@ -36,8 +39,8 @@ namespace Assets._Scripts.Player
         void Start()
         {
             ResourcesManager = new PlayerResourcesManager();
-            _playerControls = new PlayerControls();
             _transform = GetComponent<Transform>();
+            _playerControls = new PlayerControls(_transform);
             ownedUnits = new List<GameObject>();
 
             _camera = GetComponent<Camera>();
@@ -53,6 +56,7 @@ namespace Assets._Scripts.Player
             _transform.Translate(Vector3.forward*_playerControls.getVertical()*Time.deltaTime*SPEED);
             _playerControls.UpdateCamera(_transform);
             _playerControls.UpdateZoom(_transform);
+            CheckWinCondition();
         }
 
         public void SetTurn(bool turn)
@@ -114,6 +118,38 @@ namespace Assets._Scripts.Player
         public bool BuyUnit(Vector3 pos, Tile ownerTile)
         {
             return BuyUnit(SelectedGameObject, pos, ownerTile);
+        }
+
+        public bool HasWon()
+        {
+            return HadFirstTurn && GameManager.getInstance().Units.Exists(o => o.PlayerComponent == this && !o.Destroyed);
+        }
+
+        public bool HasLost()
+        {
+            return HadFirstTurn && !GameManager.getInstance().Units.Exists(o => o.PlayerComponent == this && !o.Destroyed);
+        }
+
+        public void CheckWinCondition()
+        {
+            WinTimer += Time.deltaTime;
+            if (!(HasWon() || HasLost()))
+            {
+                WinTimer = 0f;
+                GameManager.getInstance().Win(null);
+                GameManager.getInstance().Lose(null);
+            }
+            if (WinTimer > WinTime)
+            {
+                if (HasWon())
+                {
+                    GameManager.getInstance().Win(this);
+                }
+                else if (HasLost())
+                {
+                    GameManager.getInstance().Lose(this);
+                }
+            }
         }
     }
 }

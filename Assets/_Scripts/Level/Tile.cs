@@ -11,6 +11,9 @@ namespace Assets._Scripts.Level
     [RequireComponent(typeof(Transform), typeof (ColorLerpComponent))]
     public class Tile : MonoBehaviour
     {
+        [HideInInspector]
+        public Color GizmoColor = Color.red;
+
         public float ExtraHeight;
 
         [HideInInspector]
@@ -58,7 +61,7 @@ namespace Assets._Scripts.Level
             if (!EditorWalkable)
             {
                 if (Transform == null) Transform = GetComponent<Transform>();
-                Gizmos.color = Color.red;
+                Gizmos.color = GizmoColor;
                 float m = 1.1f;
                 Gizmos.DrawCube(Transform.position, new Vector3(1*m,1 * m, 1 * m));
             }

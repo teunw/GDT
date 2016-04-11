@@ -10,6 +10,8 @@ public class MainMenu : MonoBehaviour
     public Button exitButton;
     public string GameScene;
 
+    public Text WinnerText, LoserText;
+
 	// Use this for initialization
 	void Start () {
 	    startButton.onClick.AddListener(() =>
@@ -20,5 +22,24 @@ public class MainMenu : MonoBehaviour
         {
             Application.Quit();
         });
+	    WinnerText.text = "Winner";
+	    LoserText.text = "Loser";
 	}
+
+    void Update()
+    {
+        if (GameManager.getInstance() != null)
+        {
+            if (GameManager.getInstance().Winner != null)
+            {
+                Debug.Log("test2");
+                WinnerText.color = GameManager.getInstance().Winner.unitColor;
+            }
+            if (GameManager.getInstance().Loser != null)
+            {
+                Debug.Log("test");
+                LoserText.color = GameManager.getInstance().Loser.unitColor;
+            }
+        }
+    }
 }
